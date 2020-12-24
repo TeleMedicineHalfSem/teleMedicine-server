@@ -25,6 +25,28 @@ io.on("connection", (socket) => {
   // Emitting if user is connected...
   socket.emit("CONNECTION_ACK", {});
 
+  // Joining users into a room...
+  socket.on("JOIN_ROOM", ({ name, room }, callback) => {
+    const { error, success, user } = addUser({ name, room });
+
+    if (error) {
+      return callback(error);
+    }
+
+    if (user && success) {
+      socket.join(user.room);
+    }
+    return callback(success);
+  });
+
+  // On getting chat messages...
+  socket.on("SEND_MSG", ({ msg, room }) => {
+    const users = getUsersInRoom(room);
+    if (users) {
+      socket.broadcast.to(room).emit("RCV_MSG", msg);
+    }
+  });
+
   // Disconnecting socket..
   socket.on("disconnect", () => {
     console.log("user left");
