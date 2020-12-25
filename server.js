@@ -2,7 +2,7 @@ const express = require("express");
 const socketio = require("socket.io");
 const http = require("http");
 
-const { addUser, removeUser, getUser, getUsersInRoom } = require("./users");
+const { addUser, removeUser } = require("./userActions");
 
 const PORT = process.env.PORT || 2500;
 const ENDPOINT = process.env.ENDPOINT || "http://localhost:3000";
@@ -27,15 +27,26 @@ io.on("connection", (socket) => {
 
   // Joining users into a room...
   socket.on("JOIN_ROOM", ({ name, room }, callback) => {
-    const { error, success, user } = addUser({ name, room });
+    const { error, success, roomName } = addUser({ name, room });
 
     if (error) {
       return callback(error);
     }
 
-    if (user && success) {
-      socket.join(user.room);
+    if (roomName && success) {
+      socket.join(roomName);
     }
+    return callback(success);
+  });
+
+  // Removing user from room...
+  socket.on("LEAVE_ROOM", ({ name }, callback) => {
+    const { error, success } = removeUser(name);
+
+    if (error) {
+      return callback(error);
+    }
+
     return callback(success);
   });
 
