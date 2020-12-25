@@ -7,7 +7,16 @@ const {
   removeUser,
   roomAlreadyExists,
   filterMsg,
+  getUserById,
 } = require("./userActions");
+
+const {
+  JOIN_ROOM,
+  CONNECTION_ACK,
+  LEAVE_ROOM,
+  SEND_MSG,
+  RCV_MSG,
+} = require("./constants");
 
 const PORT = process.env.PORT || 2500;
 const ENDPOINT = process.env.ENDPOINT || "http://localhost:3000";
@@ -28,11 +37,11 @@ io.on("connection", (socket) => {
   console.log("User connected");
 
   // Emitting if user is connected...
-  socket.emit("CONNECTION_ACK", {});
+  socket.emit(CONNECTION_ACK, {});
 
   // Joining users into a room...
-  socket.on("JOIN_ROOM", ({ name, room }, callback) => {
-    const { error, success, roomName } = addUser({ name, room });
+  socket.on(JOIN_ROOM, ({ name, room }, callback) => {
+    const { error, success, roomName } = addUser({ id: socket.id, name, room });
 
     if (error) {
       return callback(error);
@@ -45,7 +54,7 @@ io.on("connection", (socket) => {
   });
 
   // Removing user from room...
-  socket.on("LEAVE_ROOM", ({ name }, callback) => {
+  socket.on(LEAVE_ROOM, ({ name }, callback) => {
     const { error, success, roomName } = removeUser(name);
 
     if (error) {
@@ -60,7 +69,7 @@ io.on("connection", (socket) => {
   });
 
   // On getting chat messages...
-  socket.on("SEND_MSG", ({ msg, room }, callback) => {
+  socket.on(SEND_MSG, ({ msg, room }, callback) => {
     // Filtering the msg...
     msg = filterMsg(msg);
 
@@ -70,7 +79,7 @@ io.on("connection", (socket) => {
       return callback(error);
     }
 
-    socket.broadcast.to(room).emit("RCV_MSG", { msg });
+    socket.broadcast.to(room).emit(RCV_MSG, { msg });
 
     const success = "Message sent";
     return callback(success);
@@ -78,8 +87,21 @@ io.on("connection", (socket) => {
 
   // Disconnecting socket..
   socket.on("disconnect", () => {
-    // Later we have to remove user from the room if user disconnects...
-    console.log("user left");
+    // Removing user from the room...
+    const name = getUserById(socket.id);
+    if (name) {
+      const { error, success, roomName } = removeUser(name);
+      if (success && roomName) {
+        socket.leave(roomName);
+        console.log(name, " left");
+      }
+
+      if (error) {
+        console.log(error);
+      }
+    } else {
+      console.log("user left");
+    }
   });
 });
 

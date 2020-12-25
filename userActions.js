@@ -3,7 +3,7 @@ const rooms = {};
 // Checking if user is already in room...
 const userAlreadyInRoom = (name) => {
   for (let room in rooms) {
-    if (rooms[room].indexOf(name) !== -1) {
+    if (rooms[room].find((user) => user.name === name)) {
       return true;
     }
   }
@@ -12,8 +12,8 @@ const userAlreadyInRoom = (name) => {
 
 // Checking if room already exists...
 const roomAlreadyExists = (room) => {
-  for (let r in rooms) {
-    if (r === room) {
+  for (let roomName in rooms) {
+    if (roomName === room) {
       return true;
     }
   }
@@ -27,7 +27,7 @@ const filterMsg = (msg) => {
 };
 
 // Adding users in room...
-const addUser = ({ name, room }) => {
+const addUser = ({ id, name, room }) => {
   name = name.trim().toLowerCase();
   room = room.trim().toLowerCase();
 
@@ -50,7 +50,7 @@ const addUser = ({ name, room }) => {
   }
 
   // Adding user to the room...
-  rooms[room].push(name);
+  rooms[room].push({ id, name });
 
   return { success: "Join a room", roomName: room };
 };
@@ -68,7 +68,7 @@ const removeUser = (name) => {
   let index = null;
   let roomName = null;
   for (let room in rooms) {
-    index = rooms[room].indexOf(name);
+    index = rooms[room].find((user) => user.name === name);
     if (index !== -1) {
       roomName = room;
       break;
@@ -89,10 +89,22 @@ const removeUser = (name) => {
 // Get all the users in the room...
 const getUsers = () => rooms;
 
+// Get user name from id...
+const getUserById = (id) => {
+  for (let room in rooms) {
+    const index = rooms[room].findIndex((user) => user.id === id);
+    if (index !== -1) {
+      return rooms[room][index]["name"];
+    }
+  }
+  return false;
+};
+
 module.exports = {
   addUser,
   removeUser,
   getUsers,
   roomAlreadyExists,
   filterMsg,
+  getUserById,
 };
