@@ -11,13 +11,19 @@ const userAlreadyInRoom = (name) => {
 };
 
 // Checking if room already exists...
-const roomAlreadyInRooms = (room) => {
+const roomAlreadyExists = (room) => {
   for (let r in rooms) {
     if (r === room) {
       return true;
     }
   }
   return false;
+};
+
+// Filter the msg...
+const filterMsg = (msg) => {
+  // Filter the msg and check if it is not a malicious text...
+  return msg.trim().toLowerCase();
 };
 
 // Adding users in room...
@@ -39,7 +45,7 @@ const addUser = ({ name, room }) => {
   }
 
   // Checking if there is already a room...
-  if (!roomAlreadyInRooms(room)) {
+  if (!roomAlreadyExists(room)) {
     rooms[room] = [];
   }
 
@@ -77,10 +83,16 @@ const removeUser = (name) => {
     delete rooms[roomName];
   }
 
-  return { success: `${name} is removed` };
+  return { success: `${name} is removed`, roomName };
 };
 
 // Get all the users in the room...
 const getUsers = () => rooms;
 
-module.exports = { addUser, removeUser, getUsers };
+module.exports = {
+  addUser,
+  removeUser,
+  getUsers,
+  roomAlreadyExists,
+  filterMsg,
+};

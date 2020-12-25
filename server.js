@@ -2,7 +2,12 @@ const express = require("express");
 const socketio = require("socket.io");
 const http = require("http");
 
-const { addUser, removeUser } = require("./userActions");
+const {
+  addUser,
+  removeUser,
+  roomAlreadyExists,
+  filterMsg,
+} = require("./userActions");
 
 const PORT = process.env.PORT || 2500;
 const ENDPOINT = process.env.ENDPOINT || "http://localhost:3000";
@@ -41,25 +46,39 @@ io.on("connection", (socket) => {
 
   // Removing user from room...
   socket.on("LEAVE_ROOM", ({ name }, callback) => {
-    const { error, success } = removeUser(name);
+    const { error, success, roomName } = removeUser(name);
 
     if (error) {
       return callback(error);
+    }
+
+    if (roomName && success) {
+      socket.leave(roomName);
     }
 
     return callback(success);
   });
 
   // On getting chat messages...
-  socket.on("SEND_MSG", ({ msg, room }) => {
-    const users = getUsersInRoom(room);
-    if (users) {
-      socket.broadcast.to(room).emit("RCV_MSG", msg);
+  socket.on("SEND_MSG", ({ msg, room }, callback) => {
+    // Filtering the msg...
+    msg = filterMsg(msg);
+
+    // Checking if the room exists...
+    if (!roomAlreadyExists(room)) {
+      const error = "Room does not exists";
+      return callback(error);
     }
+
+    socket.broadcast.to(room).emit("RCV_MSG", { msg });
+
+    const success = "Message sent";
+    return callback(success);
   });
 
   // Disconnecting socket..
   socket.on("disconnect", () => {
+    // Later we have to remove user from the room if user disconnects...
     console.log("user left");
   });
 });
