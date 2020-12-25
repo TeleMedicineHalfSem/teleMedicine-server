@@ -50,7 +50,7 @@ const addUser = ({ id, name, room }) => {
   }
 
   // Adding user to the room...
-  rooms[room].push({ id, name });
+  rooms[room].push({ name, id });
 
   return { success: "Join a room", roomName: room };
 };

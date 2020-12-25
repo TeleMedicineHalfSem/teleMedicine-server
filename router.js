@@ -8,8 +8,8 @@ router.get("/", (req, res) => {
 
 router.get("/rooms", (req, res) => {
   const rooms = getUsers();
-
-  res.send("Rooms are: <br/>" + JSON.stringify(rooms));
+  res.header("Content-Type", "application/json");
+  res.send(`Rooms are: \n${JSON.stringify(rooms, null, 4)}`);
 });
 
 module.exports = router;
