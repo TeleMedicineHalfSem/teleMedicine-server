@@ -23,6 +23,9 @@ const roomAlreadyExists = (room) => {
 // Filter the msg...
 const filterMsg = (msg) => {
   // Filter the msg and check if it is not a malicious text...
+  if (msg === null || msg === undefined || msg === "") {
+    return false;
+  }
   return msg.trim().toLowerCase();
 };
 

@@ -73,6 +73,12 @@ io.on("connection", (socket) => {
     // Filtering the msg...
     msg = filterMsg(msg);
 
+    // checking if msg is well formatted..
+    if (!msg) {
+      const error = "Message is not well formatted";
+      return callback(error);
+    }
+
     // Checking if the room exists...
     if (!roomAlreadyExists(room)) {
       const error = "Room does not exists";
