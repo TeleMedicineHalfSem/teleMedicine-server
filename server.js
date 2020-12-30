@@ -8,6 +8,7 @@ const {
   roomAlreadyExists,
   filterMsg,
   getUserById,
+  getUsersByName,
 } = require("./userActions");
 
 const {
@@ -16,6 +17,8 @@ const {
   LEAVE_ROOM,
   SEND_MSG,
   RCV_MSG,
+  LEFT_ROOM,
+  CONNECT_CALL,
 } = require("./constants");
 
 const PORT = process.env.PORT || 2500;
@@ -65,6 +68,8 @@ io.on("connection", (socket) => {
       socket.leave(roomName);
     }
 
+    socket.broadcast.to(roomName).emit(LEFT_ROOM, { name });
+
     return callback(success);
   });
 
@@ -91,10 +96,21 @@ io.on("connection", (socket) => {
     return callback(success);
   });
 
+  // On getting connection call for video chat...
+  socket.on(CONNECT_CALL, ({ id }, callback) => {
+    const usernames = getUsersByName(id);
+    if (!usernames) {
+      return callback({ error: "Name not is room..." });
+    }
+
+    return callback({ usernames });
+  });
+
   // Disconnecting socket..
   socket.on("disconnect", () => {
     // Removing user from the room...
     const name = getUserById(socket.id);
+
     if (name) {
       const { error, success, roomName } = removeUser(name);
       if (success && roomName) {
@@ -105,8 +121,10 @@ io.on("connection", (socket) => {
       if (error) {
         console.log(error);
       }
+
+      socket.broadcast.to(roomName).emit(LEFT_ROOM, { name });
     } else {
-      console.log("user left");
+      console.log("user left without joining a room...");
     }
   });
 });

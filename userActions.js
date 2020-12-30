@@ -52,6 +52,12 @@ const addUser = ({ id, name, room }) => {
     rooms[room] = [];
   }
 
+  // Checking if already two users are in the room...
+  const userCount = rooms[room].length;
+  if (userCount >= 2) {
+    return { error: "Already two users in the room." };
+  }
+
   // Adding user to the room...
   rooms[room].push({ name, id });
 
@@ -71,13 +77,12 @@ const removeUser = (name) => {
   let index = null;
   let roomName = null;
   for (let room in rooms) {
-    index = rooms[room].find((user) => user.name === name);
+    index = rooms[room].findIndex((user) => user.name === name);
     if (index !== -1) {
       roomName = room;
       break;
     }
   }
-
   // Removing user from the room...
   rooms[roomName].splice(index, 1)[0];
 
@@ -103,6 +108,33 @@ const getUserById = (id) => {
   return false;
 };
 
+// getting all users except the current user from the room by their usernames...
+const getUsersByName = (name) => {
+  const usernames = [];
+  let roomName = null;
+
+  // Checking if the user is not in the room...
+  if (!userAlreadyInRoom(name)) {
+    return false;
+  }
+
+  // Getting room name for the user...
+  for (let room in rooms) {
+    const userInRoom = rooms[room].find((user) => user.name === name);
+    if (userInRoom) {
+      roomName = room;
+    }
+  }
+
+  // Filling usernames array...
+  for (let i = 0; i < rooms[roomName].length; i++) {
+    const username = rooms[roomName][i]["name"];
+    if (username !== name) usernames.push(username);
+  }
+
+  return usernames;
+};
+
 module.exports = {
   addUser,
   removeUser,
@@ -110,4 +142,5 @@ module.exports = {
   roomAlreadyExists,
   filterMsg,
   getUserById,
+  getUsersByName,
 };
