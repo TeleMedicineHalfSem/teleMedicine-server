@@ -44,56 +44,57 @@ io.on("connection", (socket) => {
 
   // Joining users into a room...
   socket.on(JOIN_ROOM, ({ name, room }, callback) => {
-    const { error, success, roomName } = addUser({ id: socket.id, name, room });
+    const data = addUser({ id: socket.id, name, room });
 
-    if (error) {
-      return callback(error);
+    if (data.error) {
+      return callback(data);
     }
 
-    if (roomName && success) {
-      socket.join(roomName);
+    if (data.roomName && data.success) {
+      socket.join(data.roomName);
     }
-    return callback(success);
+    return callback(data);
   });
 
   // Removing user from room...
   socket.on(LEAVE_ROOM, ({ name }, callback) => {
-    const { error, success, roomName } = removeUser(name);
+    const data = removeUser(name);
 
-    if (error) {
-      return callback(error);
+    if (data.error) {
+      return callback(data);
     }
 
-    if (roomName && success) {
-      socket.leave(roomName);
+    if (data.roomName && data.success) {
+      socket.leave(data.roomName);
     }
 
-    socket.broadcast.to(roomName).emit(LEFT_ROOM, { name });
+    socket.broadcast.to(data.roomName).emit(LEFT_ROOM, { name });
 
-    return callback(success);
+    return callback(data);
   });
 
   // On getting chat messages...
   socket.on(SEND_MSG, ({ msg, room }, callback) => {
     // Filtering the msg...
     msg = filterMsg(msg);
+    room = room.trim().toLowerCase();
 
     // checking if msg is well formatted..
     if (!msg) {
       const error = "Message is not well formatted";
-      return callback(error);
+      return callback({ error });
     }
 
     // Checking if the room exists...
     if (!roomAlreadyExists(room)) {
       const error = "Room does not exists";
-      return callback(error);
+      return callback({ error });
     }
 
     socket.broadcast.to(room).emit(RCV_MSG, { msg });
 
     const success = "Message sent";
-    return callback(success);
+    return callback({ success });
   });
 
   // On getting connection call for video chat...
