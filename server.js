@@ -22,7 +22,7 @@ const {
 } = require("./constants");
 
 const PORT = process.env.PORT || 2500;
-const ENDPOINT = process.env.ENDPOINT || "http://localhost:3000";
+const ENDPOINT = process.env.ENDPOINT || "https://easy-care.herokuapp.com/";
 
 const router = require("./router");
 
