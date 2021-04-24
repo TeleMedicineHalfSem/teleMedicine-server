@@ -1,5 +1,6 @@
 const express = require("express");
 const socketio = require("socket.io");
+const cors = require("cors");
 const http = require("http");
 
 const {
@@ -21,18 +22,19 @@ const {
   CONNECT_CALL,
 } = require("./constants");
 
-const PORT = process.env.PORT || 2500;
-const ENDPOINT = process.env.ENDPOINT || "https://easy-care.herokuapp.com/";
+const PORT = 2500;
+const ENDPOINT = "https://easy-care.herokuapp.com/";
 
 const router = require("./router");
 
 const app = express();
+app.use(cors());
 const server = http.createServer(app);
 const io = socketio(server, {
   handlePreflightRequest: (req, res) => {
     const headers = {
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      "Access-Control-Allow-Origin": "https://easy-care.herokuapp.com/",
+      "Access-Control-Allow-Origin": ENDPOINT,
       "Access-Control-Allow-Credentials": true,
     };
     res.writeHead(200, headers);
