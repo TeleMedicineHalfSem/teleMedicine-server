@@ -32,6 +32,8 @@ const io = socketio(server, {
   cors: {
     origin: ENDPOINT,
     methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
+    credentials: true
   },
 });
 
