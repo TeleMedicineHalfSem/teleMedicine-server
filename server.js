@@ -29,11 +29,14 @@ const router = require("./router");
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server, {
-  cors: {
-    origin: ENDPOINT,
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Access-Control-Allow-Origin"],
-    credentials: true
+  handlePreflightRequest: (req, res) => {
+    const headers = {
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Allow-Origin": "https://easy-care.herokuapp.com/",
+      "Access-Control-Allow-Credentials": true,
+    };
+    res.writeHead(200, headers);
+    res.end();
   },
 });
 
