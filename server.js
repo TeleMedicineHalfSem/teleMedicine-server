@@ -22,23 +22,18 @@ const {
   CONNECT_CALL,
 } = require("./constants");
 
-const PORT = 2500;
-const ENDPOINT = "https://easy-care.herokuapp.com/";
+const PORT = process.env.PORT || 2500;
+const ENDPOINT = process.env.ENDPOINT || "http://localhost:3000";
 
 const router = require("./router");
 
 const app = express();
-app.use(cors());
 const server = http.createServer(app);
+app.use(cors());
 const io = socketio(server, {
-  handlePreflightRequest: (req, res) => {
-    const headers = {
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      "Access-Control-Allow-Origin": ENDPOINT,
-      "Access-Control-Allow-Credentials": true,
-    };
-    res.writeHead(200, headers);
-    res.end();
+  cors: {
+    origin: ENDPOINT,
+    methods: ["GET", "POST"],
   },
 });
 
