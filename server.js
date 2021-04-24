@@ -32,7 +32,7 @@ const server = http.createServer(app);
 app.use(cors());
 const io = socketio(server, {
   cors: {
-    origin: ENDPOINT,
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
