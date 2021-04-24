@@ -28,7 +28,7 @@ const ENDPOINT = "https://easy-care.herokuapp.com/";
 const router = require("./router");
 
 const app = express();
-app.use(cors());
+//app.use(cors());
 const server = http.createServer(app);
 const io = socketio(server, {
   handlePreflightRequest: (req, res) => {
