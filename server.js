@@ -32,7 +32,7 @@ const io = socketio(server, {
   cors: {
     origin: ENDPOINT,
     methods: ["GET", "POST"],
-    allowedHeaders: ["my-custom-header"],
+    allowedHeaders: ["Access-Control-Allow-Origin"],
     credentials: true
   },
 });
